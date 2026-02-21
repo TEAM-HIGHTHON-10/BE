@@ -39,7 +39,7 @@ public class User {
     @Column(nullable = false)
     private Level level = Level.NEWBIE;
 
-    /** XP progress within the current level (0–359). Resets to 0 on level-up. */
+    /** XP progress within the current level (0–99). Resets to 0 on level-up. */
     @Builder.Default
     @Column(nullable = false)
     private int currentLevelXp = 0;

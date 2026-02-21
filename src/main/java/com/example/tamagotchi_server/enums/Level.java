@@ -14,8 +14,8 @@ public enum Level {
 
     private final String displayName;
 
-    /** Every level requires 360 XP to advance */
-    public static final int XP_PER_LEVEL = 360;
+    /** Every level requires 100 XP to advance */
+    public static final int XP_PER_LEVEL = 100;
 
     /**
      * Returns the next level, or null if already SENIOR (cap).

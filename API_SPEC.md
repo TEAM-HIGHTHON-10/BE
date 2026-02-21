@@ -227,7 +227,7 @@ AUTHENTICATED
 |-----|------|------|
 | `username` | string | GitHub 사용자명 |
 | `level` | string | 현재 레벨 (`NEWBIE` / `JUNIOR` / `MIDDLE` / `SENIOR`) |
-| `currentLevelXp` | int | 현재 레벨 내 누적 XP (0~359) |
+| `currentLevelXp` | int | 현재 레벨 내 누적 XP (0~99) |
 | `xpToNextLevel` | int | 다음 레벨까지 남은 XP. SENIOR일 경우 `0` |
 | `eggCount` | int | 보유 알 개수 (Feed로 XP 변환 가능) |
 | `totalXp` | int | 전체 누적 XP (레벨업 시에도 리셋되지 않음) |
@@ -299,7 +299,7 @@ AUTHENTICATED
 |-----|------|------|
 | `username` | string | GitHub 사용자명 |
 | `level` | string | Feed 후 현재 레벨 |
-| `currentLevelXp` | int | Feed 후 현재 레벨 내 XP (0~359) |
+| `currentLevelXp` | int | Feed 후 현재 레벨 내 XP (0~99) |
 | `xpToNextLevel` | int | 다음 레벨까지 남은 XP |
 | `eggCount` | int | Feed 후 남은 알 (항상 `0`) |
 | `totalXp` | int | Feed 후 전체 누적 XP |
@@ -789,12 +789,12 @@ AUTHENTICATED
 
 | 레벨 | 표시명 | XP 범위 (currentLevelXp) |
 |------|--------|------------------------|
-| `NEWBIE` | 입문 | 0 ~ 359 |
-| `JUNIOR` | 주니어 | 0 ~ 359 |
-| `MIDDLE` | 미들 | 0 ~ 359 |
+| `NEWBIE` | 입문 | 0 ~ 99 |
+| `JUNIOR` | 주니어 | 0 ~ 99 |
+| `MIDDLE` | 미들 | 0 ~ 99 |
 | `SENIOR` | 시니어 | 0+ (최대 레벨, 캡) |
 
-- 레벨업 기준: **360 XP** 마다 다음 레벨로 진행
+- 레벨업 기준: **100 XP** 마다 다음 레벨로 진행
 - 레벨업 시 `currentLevelXp`는 0으로 리셋 (초과분은 이월)
 - `SENIOR`는 최대 레벨 — XP는 계속 쌓이지만 더 이상 레벨업 없음
 
@@ -811,7 +811,7 @@ WebSocket으로 QUEST_COMPLETED 알림
     ↓
 모든 Eggs → XP로 변환
     ↓
-currentLevelXp >= 360 이면 자동 레벨업
+currentLevelXp >= 100 이면 자동 레벨업
 ```
 
 ### 알(Egg) 지급 규칙

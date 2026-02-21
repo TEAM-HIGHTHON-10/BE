@@ -47,7 +47,7 @@ public class XpService {
      * Feed (밥주기): convert ALL eggs to XP, then process level-ups.
      *
      * Level-up rules:
-     * - Each level requires 360 XP (Level.XP_PER_LEVEL)
+     * - Each level requires 100 XP (Level.XP_PER_LEVEL)
      * - currentLevelXp resets to 0 on level-up, remainder carries over
      * - SENIOR is the cap — XP continues accumulating but no further level
      */
