@@ -19,7 +19,8 @@
 7. [Webhook 등록](#7-webhook-등록)
 8. [GitHub Webhook 수신](#8-github-webhook-수신)
 9. [WebSocket 실시간 알림](#9-websocket-실시간-알림)
-10. [게임 시스템 레퍼런스](#10-게임-시스템-레퍼런스)
+10. [게임 결과 전송](#10-게임-결과-전송)
+11. [게임 시스템 레퍼런스](#11-게임-시스템-레퍼런스)
 
 ---
 
@@ -671,7 +672,7 @@ ws.onmessage = (event) => {
 | 필드 | 타입 | 설명 |
 |-----|------|------|
 | `type` | string | 항상 `"QUEST_COMPLETED"` |
-| `questType` | string | 퀘스트 종류: `"COMMIT"` / `"PR"` / `"ISSUE"` / `"FOLLOWER"` |
+| `questType` | string | 퀘스트 종류: `"COMMIT"` / `"PR"` / `"ISSUE"` / `"FOLLOWER"` / `"GAME"` |
 | `eggsEarned` | int | 이번 퀘스트로 획득한 알 개수 |
 | `totalEggs` | int | 현재 보유 총 알 개수 |
 
@@ -683,10 +684,106 @@ ws.onmessage = (event) => {
 | `PR` | pull_request opened | +10 |
 | `ISSUE` | issues opened | +10 |
 | `FOLLOWER` | GitHub 팔로워 증가 (5분 주기 동기화) | +10 per new follower |
+| `GAME` | 게임 성공 완료 (POST /api/game/result) | +10 |
 
 ---
 
-## 10. 게임 시스템 레퍼런스
+## 10. 게임 결과 전송
+
+### Domain
+GAME
+
+### HTTP Method
+POST
+
+### API Path
+`/api/game/result`
+
+### 권한
+AUTHENTICATED
+
+### 토큰 유무
+필요
+
+### 개요
+프론트에서 실행한 게임의 결과를 서버로 전송합니다. 서버는 JWT 인증만 검증하며, 별도의 게임 세션을 발급하지 않습니다. `result`가 `"SUCCESS"`이면 10개의 알(egg)이 지급되고 WebSocket으로 `QUEST_COMPLETED`/`GAME` 알림이 전송됩니다. `"FAIL"`이면 알이 지급되지 않습니다.
+
+---
+
+### Request
+
+#### Headers
+
+| 헤더 | 값 | 필수 |
+|-----|---|------|
+| `Authorization` | `Bearer {access_token}` | O |
+| `Content-Type` | `application/json` | O |
+
+#### Body
+
+```json
+{
+  "result": "SUCCESS"
+}
+```
+
+| 필드 | 타입 | 필수 | 설명 |
+|-----|------|------|------|
+| `result` | string | O | 게임 결과: `"SUCCESS"` 또는 `"FAIL"` |
+
+---
+
+### Response
+
+#### Success (200 OK) — 게임 성공
+
+```json
+{
+  "result": "SUCCESS",
+  "eggs_earned": 10,
+  "total_eggs": 40
+}
+```
+
+#### Success (200 OK) — 게임 실패
+
+```json
+{
+  "result": "FAIL",
+  "eggs_earned": 0,
+  "total_eggs": 30
+}
+```
+
+| 필드 | 타입 | 설명 |
+|-----|------|------|
+| `result` | string | 게임 결과 (`"SUCCESS"` / `"FAIL"`) |
+| `eggs_earned` | int | 획득한 알 개수 (SUCCESS: 10, FAIL: 0) |
+| `total_eggs` | int | 현재 보유 총 알 개수 |
+
+#### Error (400 Bad Request) — 잘못된 result 값
+
+```json
+{
+  "status": 400,
+  "message": "Invalid result value. Must be SUCCESS or FAIL",
+  "timestamp": "2026-02-22T14:30:00"
+}
+```
+
+---
+
+### Error List
+
+| 상태 코드 | 설명 |
+|-----------|------|
+| `400 Bad Request` | result 값이 SUCCESS 또는 FAIL이 아닌 경우 |
+| `401 Unauthorized` | JWT 토큰 없음 또는 만료 |
+| `500 Internal Server Error` | 서버 내부 오류 |
+
+---
+
+## 11. 게임 시스템 레퍼런스
 
 ### 레벨 시스템
 
@@ -704,7 +801,7 @@ ws.onmessage = (event) => {
 ### 게임 흐름
 
 ```
-GitHub Event (push, PR, issue)
+GitHub Event (push, PR, issue) 또는 게임 성공
     ↓
 Quest Completed → +10 Eggs 지급
     ↓
@@ -725,6 +822,7 @@ currentLevelXp >= 360 이면 자동 레벨업
 | PR 생성 1회 | +10 |
 | Issue 생성 1회 | +10 |
 | 팔로워 1명 증가 | +10 |
+| 게임 성공 완료 | +10 |
 
 - 알은 자동으로 XP가 되지 않음
 - 반드시 Feed API를 호출해야 XP로 변환됨

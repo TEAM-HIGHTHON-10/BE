@@ -15,7 +15,7 @@ import lombok.*;
 public class XpEventMessage {
 
     private String type;        // "QUEST_COMPLETED"
-    private String questType;   // "COMMIT", "PR", "ISSUE", "FOLLOWER"
+    private String questType;   // "COMMIT", "PR", "ISSUE", "FOLLOWER", "GAME"
     private int eggsEarned;     // eggs gained from this quest
     private int totalEggs;      // total eggs after this quest
 }
